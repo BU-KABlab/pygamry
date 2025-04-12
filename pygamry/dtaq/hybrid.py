@@ -3,7 +3,6 @@ import os
 import time
 import pandas as pd
 import warnings
-from copy import deepcopy
 
 from .readz import DtaqReadZ
 from .chrono import DtaqChrono

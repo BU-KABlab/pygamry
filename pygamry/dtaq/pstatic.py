@@ -1,6 +1,6 @@
 from .config import GamryCOM
 from .eventsink import GamryDtaqEventSink
-from ..utils import gamry_error_decoder, rel_round, check_control_mode
+from ..utils import rel_round
 
 
 import comtypes.client as client

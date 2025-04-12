@@ -1,7 +1,4 @@
 import argparse
-import os
-import numpy as np
-import matplotlib.pyplot as plt
 import time
 import arg_config as argc
 from pygamry.dtaq import DtaqReadZ

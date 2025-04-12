@@ -30,9 +30,10 @@
 
 # Functions in this module were adapted from scipy.ndimage._filters (Jan. 2023)
 import numbers
+
 import numpy as np
 from scipy.ndimage import _ni_support
-from scipy.ndimage.filters import correlate1d, gaussian_filter1d
+from scipy.ndimage.filters import correlate1d
 
 
 # "Empty" Gaussian filter
@@ -43,10 +44,10 @@ def _empty_gaussian_kernel1d(sigma, order, radius):
     Adapted from scipy.ndimage._filters._empty_gaussian_kernel1d
     """
     if order < 0:
-        raise ValueError('order must be non-negative')
+        raise ValueError("order must be non-negative")
     sigma2 = sigma * sigma
     x = np.arange(-radius, radius + 1)
-    phi_x = np.exp(-0.5 / sigma2 * x ** 2)
+    phi_x = np.exp(-0.5 / sigma2 * x**2)
     phi_x[x == 0] = 0
     phi_x = phi_x / phi_x.sum()
 
@@ -70,8 +71,18 @@ def _empty_gaussian_kernel1d(sigma, order, radius):
         return q * phi_x
 
 
-def empty_gaussian_filter1d(input, sigma, axis=-1, order=0, output=None,
-                            mode="reflect", cval=0.0, truncate=4.0, *, radius=None):
+def empty_gaussian_filter1d(
+    input,
+    sigma,
+    axis=-1,
+    order=0,
+    output=None,
+    mode="reflect",
+    cval=0.0,
+    truncate=4.0,
+    *,
+    radius=None,
+):
     """
     1-D "empty" Gaussian filter. Adapted from scipy.ndimage.gaussian_filter1d
     Parameters
@@ -108,14 +119,23 @@ def empty_gaussian_filter1d(input, sigma, axis=-1, order=0, output=None,
     if radius is not None:
         lw = radius
     if not isinstance(lw, numbers.Integral) or lw < 0:
-        raise ValueError('Radius must be a nonnegative integer.')
+        raise ValueError("Radius must be a nonnegative integer.")
     # Since we are calling correlate, not convolve, revert the kernel
     weights = _empty_gaussian_kernel1d(sigma, order, lw)[::-1]
     return correlate1d(input, weights, axis, output, mode, cval, 0)
 
 
-def empty_gaussian_filter(input, sigma, order=0, output=None,
-                          mode="reflect", cval=0.0, truncate=4.0, *, radius=None):
+def empty_gaussian_filter(
+    input,
+    sigma,
+    order=0,
+    output=None,
+    mode="reflect",
+    cval=0.0,
+    truncate=4.0,
+    *,
+    radius=None,
+):
     """
     Multidimensional "empty" Gaussian filter. Adapted from scipy.ndimage.gaussian_filter
     Applies a Gaussian filter with zero weight given to the central pixel
@@ -166,12 +186,16 @@ def empty_gaussian_filter(input, sigma, order=0, output=None,
     modes = _ni_support._normalize_sequence(mode, input.ndim)
     radiuses = _ni_support._normalize_sequence(radius, input.ndim)
     axes = list(range(input.ndim))
-    axes = [(axes[ii], sigmas[ii], orders[ii], modes[ii], radiuses[ii])
-            for ii in range(len(axes)) if sigmas[ii] > 1e-15]
+    axes = [
+        (axes[ii], sigmas[ii], orders[ii], modes[ii], radiuses[ii])
+        for ii in range(len(axes))
+        if sigmas[ii] > 1e-15
+    ]
     if len(axes) > 0:
         for axis, sigma, order, mode, radius in axes:
-            empty_gaussian_filter1d(input, sigma, axis, order, output,
-                                    mode, cval, truncate, radius=radius)
+            empty_gaussian_filter1d(
+                input, sigma, axis, order, output, mode, cval, truncate, radius=radius
+            )
             input = output
     else:
         output[...] = input[...]

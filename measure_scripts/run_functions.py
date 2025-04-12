@@ -5,7 +5,7 @@ import time
 from scipy.interpolate import interp1d
 
 import pandas as pd
-from pygamry.dtaq import DtaqChrono, DtaqOcv, GamryCOM, DtaqGstatic, DtaqPstatic
+from pygamry.dtaq import DtaqChrono, GamryCOM, DtaqPstatic
 from pygamry.equilibration import DtaqPstaticEquil, DtaqGstaticEquil
 from pygamry.file_utils import read_curve_data
 from pygamry.utils import get_eis_frequencies

@@ -4,13 +4,12 @@ import argparse
 # import matplotlib
 # matplotlib.use('QtAgg')
 # import matplotlib.pyplot as plt
-import time
 
 import arg_config as argc
 from pygamry.dtaq import DtaqReadZ
 import run_functions as rf
 
-from pygamry.dtaq import get_pstat, DtaqOcv
+from pygamry.dtaq import get_pstat
 
 # Define args
 parser = argparse.ArgumentParser(description='Run EIS')

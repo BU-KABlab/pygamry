@@ -2,8 +2,7 @@
 import pandas as pd
 import os
 import numpy as np
-from file_proc import generate_mfc_schedule, generate_cmd_kwargs, generate_tempctrl_schedule, get_mfc_property, \
-    get_tempctrl_property
+from file_proc import generate_mfc_schedule, generate_cmd_kwargs, generate_tempctrl_schedule, get_mfc_property
 import argparse
 import easygui
 import matplotlib.pyplot as plt

@@ -1,5 +1,4 @@
 import argparse
-import os
 import time
 import arg_config as argc
 import run_functions as rf

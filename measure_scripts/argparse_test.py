@@ -1,5 +1,4 @@
 import argparse
-import codecs
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--text', type=str, default=None)

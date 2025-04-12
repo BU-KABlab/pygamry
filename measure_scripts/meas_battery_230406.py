@@ -1,11 +1,9 @@
-import time
-import numpy as np
 import os
 
 
 import run_functions as rf
 
-from pygamry.dtaq import get_pstat, DtaqOcv, DtaqChrono, HybridSequencer
+from pygamry.dtaq import get_pstat, DtaqChrono, HybridSequencer
 
 data_path = 'C:\\Users\\jdhuang\\Documents\\Gamry_data\\Batteries\\Molicel_M35A\\Cell1\\230406'
 # data_path = '..\\test_data'

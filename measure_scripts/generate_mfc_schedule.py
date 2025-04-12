@@ -2,9 +2,7 @@
 import pandas as pd
 import os
 import numpy as np
-from utils import check_equality
-from file_proc import generate_mfc_schedule, get_channel_gases_from_config, get_channel_gases_from_schedule, \
-    get_mfc_property, check_channel_gases, check_schedule_fractions
+from file_proc import generate_mfc_schedule, get_mfc_property
 import argparse
 import easygui
 import matplotlib.pyplot as plt

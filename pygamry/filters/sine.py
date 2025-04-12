@@ -1,4 +1,3 @@
-import numpy as np
 from scipy import ndimage
 
 from ..utils import identify_steps

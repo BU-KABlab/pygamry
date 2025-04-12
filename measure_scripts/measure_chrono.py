@@ -1,10 +1,9 @@
 import argparse
-import os
 import time
 import arg_config as argc
 import run_functions as rf
 
-from pygamry.dtaq import get_pstat, DtaqChrono, GamryCOM
+from pygamry.dtaq import get_pstat, DtaqChrono
 
 # Define args
 parser = argparse.ArgumentParser(description='Run chronopotentiometry/chronoamperometry')
