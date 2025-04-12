@@ -32,8 +32,8 @@ def check_equality(a, b):
         out = False
 
     return out
-    
-    
+
+
 def rel_round(x, precision):
     """
     Round to relative precision
@@ -50,15 +50,17 @@ def rel_round(x, precision):
             if type(x) == list:
                 x = np.array(x)
             shape = x.shape
-            x_round = np.array([round(xi, di) for xi, di in zip(x.flatten(), digits.flatten())])
+            x_round = np.array(
+                [round(xi, di) for xi, di in zip(x.flatten(), digits.flatten())]
+            )
             x_round = np.reshape(x_round, shape)
         else:
             x_round = round(x, digits)
         return x_round
     except TypeError:
         return x
-    
-   
+
+
 def is_subset(x, y, precision=10):
     """
     Check if x is a subset of y
@@ -86,6 +88,6 @@ def eq_ph2o(temp):
     :param float temp: temperature in C
     :return: vapor pressure in atm
     """
-    p = 0.61121*np.exp((18.678 - temp/234.5)*(temp/(257.14+temp)))
+    p = 0.61121 * np.exp((18.678 - temp / 234.5) * (temp / (257.14 + temp)))
     p /= 101.325
     return p

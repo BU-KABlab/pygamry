@@ -33,11 +33,21 @@ class DtaqReduction(DtaqOcv):
 
     def evaluate_slope(self):
         """Get OCV slope"""
-        t_sample = self.signal_params['t_sample']
-        sample_window = int(60 * self.red_step_params['SlopeWindowMinutes'] / t_sample)
+        t_sample = self.signal_params["t_sample"]
+        sample_window = int(60 * self.red_step_params["SlopeWindowMinutes"] / t_sample)
         # Get recent voltage within sample window
-        v_sample = (self.data_array[-sample_window:, self.cook_columns.index('Vf')]).astype(float) * 1000  # mV
-        t = (self.data_array[-sample_window:, self.cook_columns.index('Time')]).astype(float) / 3600  # hours
+        v_sample = (
+            (self.data_array[-sample_window:, self.cook_columns.index("Vf")]).astype(
+                float
+            )
+            * 1000
+        )  # mV
+        t = (
+            (self.data_array[-sample_window:, self.cook_columns.index("Time")]).astype(
+                float
+            )
+            / 3600
+        )  # hours
         # Linear fit
         fit = np.polyfit(t, v_sample, deg=1)
 
@@ -46,13 +56,16 @@ class DtaqReduction(DtaqOcv):
     def check_reduction_status(self):
         status = False
         elapsed_minutes = (time.time() - self.red_step_start_time) / 60
-        if elapsed_minutes >= self.red_step_params['MinWaitTimeMinutes']:
+        if elapsed_minutes >= self.red_step_params["MinWaitTimeMinutes"]:
             # If wait time has passed, check current OCV
-            if self.data_array[-1, self.cook_columns.index('Vf')] >= self.red_step_params['MinimumOCV'] or \
-                    elapsed_minutes >= self.red_step_params['MaxWaitTimeMinutes']:
+            if (
+                self.data_array[-1, self.cook_columns.index("Vf")]
+                >= self.red_step_params["MinimumOCV"]
+                or elapsed_minutes >= self.red_step_params["MaxWaitTimeMinutes"]
+            ):
                 # If current OCV above threshold OR max time has passed, check slope
                 slope = self.evaluate_slope()
-                if slope < self.red_step_params['SlopeThresholdmVh']:
+                if slope < self.red_step_params["SlopeThresholdmVh"]:
                     # If slope is below threshold, consider reduction step complete
                     status = True
 
@@ -65,10 +78,12 @@ class DtaqReduction(DtaqOcv):
         red_step_complete = self.check_reduction_status()
 
         if red_step_complete:
-            print(f'step {self.red_step_index} complete')
+            print(f"step {self.red_step_index} complete")
             # Write empty flag file for LabVIEW
-            flag_file = os.path.join(self.flag_file_path, f'Reduction_Step{self.red_step_index}_COMPLETE.txt')
-            with open(flag_file, 'w+'):
+            flag_file = os.path.join(
+                self.flag_file_path, f"Reduction_Step{self.red_step_index}_COMPLETE.txt"
+            )
+            with open(flag_file, "w+"):
                 pass
 
             self.start_new_red_step()
@@ -77,7 +92,9 @@ class DtaqReduction(DtaqOcv):
         if self.reduction_complete:
             # Fudge new_count for final write - only matters for write_mode continuous, in which case new_count will be
             # equal to total_points - last_write_index
-            self.write_to_files(self.total_points - self._last_write_index, True)  # final write
+            self.write_to_files(
+                self.total_points - self._last_write_index, True
+            )  # final write
             self.close_connection()
 
     def run(self, pstat, duration, t_sample, flag_file_path, max_iter=3, **run_kw):
@@ -95,7 +112,9 @@ class DtaqReduction(DtaqOcv):
             else:
                 append_to_file = True
 
-            super().run(pstat, duration, t_sample, append_to_file=append_to_file, **run_kw)
+            super().run(
+                pstat, duration, t_sample, append_to_file=append_to_file, **run_kw
+            )
 
             iteration += 1
             if iteration >= max_iter:

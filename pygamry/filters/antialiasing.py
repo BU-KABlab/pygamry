@@ -5,8 +5,17 @@ from pygamry.filters._filters import empty_gaussian_filter1d
 from pygamry.utils import identify_steps, split_steps, robust_std, pdf_normal
 
 
-def nonuniform_gaussian_filter1d(a, sigma, axis=-1, empty=False,
-                                 mode='reflect', cval=0.0, truncate=4, sigma_node_factor=1.5, min_sigma=0.25):
+def nonuniform_gaussian_filter1d(
+    a,
+    sigma,
+    axis=-1,
+    empty=False,
+    mode="reflect",
+    cval=0.0,
+    truncate=4,
+    sigma_node_factor=1.5,
+    min_sigma=0.25,
+):
     if np.max(sigma) > 0:
         sigma = np.copy(sigma)
         sigma[sigma <= 0] = 1e-10
@@ -30,7 +39,7 @@ def nonuniform_gaussian_filter1d(a, sigma, axis=-1, empty=False,
             # Limit requested sigma values to 2 increments below min effective sigma
             # This will ensure that any sigma values well below min_sigma will not be filtered, while those
             # close to min_sigma will receive mixed-lengthscale filtering as intended
-            sigma[sigma < min_sigma / (factor ** 2)] = min_sigma / (factor ** 2)
+            sigma[sigma < min_sigma / (factor**2)] = min_sigma / (factor**2)
 
             # Insert as many sigma values as needed to get to lowest requested value (max 2 inserts)
             while sigma_nodes[0] > np.min(sigma) * 1.001:
@@ -66,18 +75,36 @@ def nonuniform_gaussian_filter1d(a, sigma, axis=-1, empty=False,
                 # Sigma is below minimum effective value
                 if empty:
                     # For empty filter, still need to apply filter to determine central value
-                    node_outputs[i] = empty_gaussian_filter1d(a, sigma=min_sigma, axis=axis, mode=mode, cval=cval,
-                                                              truncate=truncate)
+                    node_outputs[i] = empty_gaussian_filter1d(
+                        a,
+                        sigma=min_sigma,
+                        axis=axis,
+                        mode=mode,
+                        cval=cval,
+                        truncate=truncate,
+                    )
                 else:
                     # For standard filter, reduces to original array
                     node_outputs[i] = a
             else:
                 if empty:
-                    node_outputs[i] = empty_gaussian_filter1d(a, sigma=sigma_nodes[i], axis=axis, mode=mode, cval=cval,
-                                                              truncate=truncate)
+                    node_outputs[i] = empty_gaussian_filter1d(
+                        a,
+                        sigma=sigma_nodes[i],
+                        axis=axis,
+                        mode=mode,
+                        cval=cval,
+                        truncate=truncate,
+                    )
                 else:
-                    node_outputs[i] = ndimage.gaussian_filter1d(a, sigma=sigma_nodes[i], axis=axis, mode=mode, cval=cval,
-                                                                truncate=truncate)
+                    node_outputs[i] = ndimage.gaussian_filter1d(
+                        a,
+                        sigma=sigma_nodes[i],
+                        axis=axis,
+                        mode=mode,
+                        cval=cval,
+                        truncate=truncate,
+                    )
 
         node_weights = get_node_weights(sigma)
         # print(node_weights.shape, node_outputs.shape)
@@ -91,11 +118,21 @@ def nonuniform_gaussian_filter1d(a, sigma, axis=-1, empty=False,
         return a
 
 
-def filter_chrono_signal(times, y, step_index=None, input_signal=None, decimate_index=None,
-                         sigma_factor=0.01, max_sigma=None,
-                         remove_outliers=False, outlier_kw=None, median_prefilter=False, **kw):
+def filter_chrono_signal(
+    times,
+    y,
+    step_index=None,
+    input_signal=None,
+    decimate_index=None,
+    sigma_factor=0.01,
+    max_sigma=None,
+    remove_outliers=False,
+    outlier_kw=None,
+    median_prefilter=False,
+    **kw,
+):
     if step_index is None and input_signal is None:
-        raise ValueError('Either step_index or input_signal must be provided')
+        raise ValueError("Either step_index or input_signal must be provided")
 
     if step_index is None:
         step_index = identify_steps(input_signal, allow_consecutive=False)
@@ -110,16 +147,23 @@ def filter_chrono_signal(times, y, step_index=None, input_signal=None, decimate_
 
         # Find outliers with difference from filtered signal
         # Use median prefilter to avoid spread of outliers
-        y_filt = filter_chrono_signal(times, y, step_index=step_index,
-                                      sigma_factor=sigma_factor, max_sigma=max_sigma,
-                                      remove_outliers=False,
-                                      empty=False, median_prefilter=True, **kw)
+        y_filt = filter_chrono_signal(
+            times,
+            y,
+            step_index=step_index,
+            sigma_factor=sigma_factor,
+            max_sigma=max_sigma,
+            remove_outliers=False,
+            empty=False,
+            median_prefilter=True,
+            **kw,
+        )
         if outlier_kw is None:
             outlier_kw = {}
 
         outlier_flag = flag_chrono_outliers(y, y_filt, **outlier_kw)
 
-        print('outlier indices:', np.where(outlier_flag))
+        print("outlier indices:", np.where(outlier_flag))
 
         # Set outliers to filtered value
         y[outlier_flag] = y_filt[outlier_flag]
@@ -150,7 +194,7 @@ def filter_chrono_signal(times, y, step_index=None, input_signal=None, decimate_
             sigmas = np.minimum(step_dec_sigmas[i], sigmas)
 
         if median_prefilter:
-            y_in = ndimage.median_filter(y_step, 3, mode='nearest')
+            y_in = ndimage.median_filter(y_step, 3, mode="nearest")
         else:
             y_in = y_step
 
@@ -162,7 +206,7 @@ def filter_chrono_signal(times, y, step_index=None, input_signal=None, decimate_
 
 
 def sigma_from_decimate_index(y, decimate_index, truncate=4.0):
-    sigmas = np.zeros(len(y)) #+ 0.25
+    sigmas = np.zeros(len(y))  # + 0.25
 
     # Determine distance to nearest sample
     diff = np.diff(decimate_index)
@@ -182,7 +226,7 @@ def flag_chrono_outliers(y_raw, y_filt, thresh=0.95, p_prior=0.01):
     dev = y_filt - y_raw
     std = robust_std(dev)
     sigma_out = np.maximum(np.abs(dev), 0.01 * std)
-    print('std:', std)
+    print("std:", std)
     p_out = outlier_prob(dev, 0, std, sigma_out, p_prior)
 
     return p_out > thresh

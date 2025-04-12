@@ -17,37 +17,6 @@ def nanround(x, digits):
         return round(x, digits)
 
 
-# def rel_round(x, precision):
-#     """
-#     Round to relative precision
-#     :param ndarray x: array of numbers to round
-#     :param int precision : number of digits to keep
-#     :return: rounded array
-#     """
-#     if precision is not None:
-#         try:
-#             # attempt to cast as float
-#             x = np.array(x, dtype=float)
-#             # add 1e-30 for safety in case of zeros in x
-#             x_scale = np.floor(np.log10(np.array(np.abs(x)) + 1e-30))
-#             digits = (precision - x_scale).astype(int)
-#             # TODO: rewrite to use np.round rather than round in listcomp
-#             # Scale all entries by x_scale, then np.round(precision), then rescale
-#             # print(digits)
-#             if np.shape(x) == ():
-#                 x_round = nanround(x[()], digits)
-#             else:
-#                 shape = x.shape
-#                 x_round = np.array([nanround(xi, di) for xi, di in zip(x.flatten(), digits.flatten())])
-#                 x_round = np.reshape(x_round, shape)
-#             return x_round
-#         except (ValueError, TypeError) as err:
-#             print(err)
-#             return x
-#     else:
-#         return x
-
-
 def rel_round(x, precision):
     """
     Round to relative precision
@@ -62,24 +31,24 @@ def rel_round(x, precision):
             # Scale all entries to order 1
             # add 1e-30 for safety in case of zeros in x
             x_order = np.floor(np.log10(np.array(np.abs(x)) + 1e-30))
-            x_scaled = x / (10 ** x_order)
+            x_scaled = x / (10**x_order)
             if np.shape(x) == ():
                 # Round scaled value
                 xs_round = nanround(x_scaled[()], precision)
                 # Rescale
-                x_round = xs_round * (10 ** x_order)
+                x_round = xs_round * (10**x_order)
             else:
                 # Round scaled values
                 xs_round = np.round(x_scaled, precision)
                 # Rescale
-                x_round = xs_round * (10 ** x_order)
+                x_round = xs_round * (10**x_order)
             return x_round
         except (ValueError, TypeError) as err:
             print(err)
             return x
     else:
         return x
-    
+
 
 def nearest_index(x_array, x_val, constraint=None):
     """
@@ -91,16 +60,20 @@ def nearest_index(x_array, x_val, constraint=None):
     :return:
     """
     if constraint is None:
+
         def func(arr, x):
             return np.abs(arr - x)
     elif constraint in [-1, 1]:
+
         def func(arr, x):
             out = np.zeros_like(arr) + np.inf
             constraint_index = constraint * arr >= constraint * x
             out[constraint_index] = constraint * (arr - x)[constraint_index]
             return out
     else:
-        raise ValueError(f'Invalid constraint argument {constraint}. Options: None, -1, 1')
+        raise ValueError(
+            f"Invalid constraint argument {constraint}. Options: None, -1, 1"
+        )
 
     obj_func = func(x_array, x_val)
     index = np.argmin(obj_func)
@@ -109,12 +82,16 @@ def nearest_index(x_array, x_val, constraint=None):
     if obj_func[index] == np.inf:
         if constraint == -1:
             min_val = np.min(x_array)
-            raise ValueError(f'No index satisfying {constraint} constraint: minimum array value {min_val} '
-                             f'exceeds target value {x_val}')
+            raise ValueError(
+                f"No index satisfying {constraint} constraint: minimum array value {min_val} "
+                f"exceeds target value {x_val}"
+            )
         else:
             max_val = np.max(x_array)
-            raise ValueError(f'No index satisfying {constraint} constraint: maximum array value {max_val} '
-                             f'is less than target value {x_val}')
+            raise ValueError(
+                f"No index satisfying {constraint} constraint: maximum array value {max_val} "
+                f"is less than target value {x_val}"
+            )
 
     return index
 
@@ -127,24 +104,24 @@ class GamryCOMError(Exception):
 
 def gamry_error_decoder(e):
     if isinstance(e, comtypes.COMError):
-        hresult = 2 ** 32 + e.args[0]
+        hresult = 2**32 + e.args[0]
         if hresult & 0x20000000:
-            return GamryCOMError('0x{0:08x}: {1}'.format(2**32+e.args[0], e.args[1]))
+            return GamryCOMError("0x{0:08x}: {1}".format(2**32 + e.args[0], e.args[1]))
     return e
 
 
 # Check functions
 # -----------------
 def check_write_mode(write_mode):
-    options = ['continuous', 'once', 'interval']
+    options = ["continuous", "once", "interval"]
     if write_mode not in options:
-        raise ValueError(f'Invalid write_mode {write_mode}. Options: {options}')
+        raise ValueError(f"Invalid write_mode {write_mode}. Options: {options}")
 
 
 def check_control_mode(control_mode):
-    options = ['galv', 'pot']
+    options = ["galv", "pot"]
     if control_mode not in options:
-        raise ValueError(f'Invalid control_mode {control_mode}. Options: {options}')
+        raise ValueError(f"Invalid control_mode {control_mode}. Options: {options}")
 
 
 # Data processing and prep
@@ -207,7 +184,7 @@ def robust_std(x):
 
 
 def pdf_normal(x, loc, scale):
-    return 1 / (scale * np.sqrt(2 * np.pi)) * np.exp(-0.5 * (x - loc) ** 2 / scale ** 2)
+    return 1 / (scale * np.sqrt(2 * np.pi)) * np.exp(-0.5 * (x - loc) ** 2 / scale**2)
 
 
 def get_quantile_limits(y, qr_size=0.5, qr_thresh=1.5):
@@ -224,7 +201,3 @@ def identify_extreme_values(y, qr_size=0.8, qr_thresh=1.5):
     y_min, y_max = get_quantile_limits(y, qr_size, qr_thresh)
 
     return (y < y_min) | (y > y_max)
-
-
-
-

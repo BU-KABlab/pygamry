@@ -2,8 +2,18 @@ import numpy as np
 from scipy.optimize import minimize
 
 
-def estimate_next_i(i_hist, v_hist, v_step, penalty_vec, deg=2, num_points=3, prev_step_prior=0,
-                    i_offset=None, v_offset=0, i_lambda=0):
+def estimate_next_i(
+    i_hist,
+    v_hist,
+    v_step,
+    penalty_vec,
+    deg=2,
+    num_points=3,
+    prev_step_prior=0,
+    i_offset=None,
+    v_offset=0,
+    i_lambda=0,
+):
     """
     Estimate the next polarization current that will result in a voltage change of v_step
     :param i_hist: list of current values
@@ -41,18 +51,18 @@ def estimate_next_i(i_hist, v_hist, v_step, penalty_vec, deg=2, num_points=3, pr
         v_offset = v_hist[0]
     v_scaled = (v_opt - v_offset) / v_scale
     v_next_scaled = (v_next - v_offset) / v_scale
-    print('v_scale:', v_scale)
+    print("v_scale:", v_scale)
 
     # Basic polynomial fit
     pfit = np.polyfit(v_scaled, i_scaled, deg=deg)
-    print('pfit:', pfit[::-1])
+    print("pfit:", pfit[::-1])
 
     # Regularized fit (ridge regression with additional priors)
     if np.max(penalty_vec) > 0 or prev_step_prior > 0 or i_lambda > 0:
         # Polynomial matrix for fit data
-        A = np.vstack([v_scaled ** d for d in range(0, deg + 1)]).T
+        A = np.vstack([v_scaled**d for d in range(0, deg + 1)]).T
         # Poly vector for target voltage
-        A_next = np.array([v_next_scaled ** d for d in range(0, deg + 1)])
+        A_next = np.array([v_next_scaled**d for d in range(0, deg + 1)])
         # Next i predicted by using previous step size
         prev_i_pred_scaled = (2 * i_hist[-1] - i_hist[-2] - i_offset) / i_scale
         # Ridge penalty matrix
@@ -72,7 +82,7 @@ def estimate_next_i(i_hist, v_hist, v_step, penalty_vec, deg=2, num_points=3, pr
             return cost
 
         opt_res = minimize(cost_func, x0=pfit[::-1])
-        x_opt = opt_res['x']
+        x_opt = opt_res["x"]
     else:
         x_opt = pfit[::-1]
 

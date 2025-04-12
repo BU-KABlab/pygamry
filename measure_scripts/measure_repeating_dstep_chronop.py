@@ -6,14 +6,14 @@ import run_functions as rf
 from pygamry.dtaq import get_pstat, DtaqChrono, GamryCOM
 
 # Define args
-parser = argparse.ArgumentParser(description='Run repeating chronopotentiometry')
+parser = argparse.ArgumentParser(description="Run repeating chronopotentiometry")
 # Add predefined arguments
 argc.add_args_from_dict(parser, argc.common_args)
 argc.add_args_from_dict(parser, argc.chrono_decimate_args)
 argc.add_args_from_dict(parser, argc.chrono_step_args)
-parser.add_argument('--repeats', type=int, default=1)
+parser.add_argument("--repeats", type=int, default=1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start_time = time.time()
 
     # Parse args
@@ -23,8 +23,14 @@ if __name__ == '__main__':
     pstat = get_pstat()
 
     # Initialize dtaq
-    chrono = DtaqChrono('galv', write_mode='once', write_precision=6, exp_notes=args.exp_notes,
-                        leave_cell_on=True, start_with_cell_off=False)
+    chrono = DtaqChrono(
+        "galv",
+        write_mode="once",
+        write_precision=6,
+        exp_notes=args.exp_notes,
+        leave_cell_on=True,
+        start_with_cell_off=False,
+    )
 
     # # Configure decimation
     # chrono.configure_decimation(args.decimate_during, args.prestep_points, args.decimation_interval,
@@ -50,4 +56,4 @@ if __name__ == '__main__':
     pstat.SetCell(GamryCOM.CellOff)
     pstat.Close()
 
-    print('Run time: {:.2f} s'.format(time.time() - start_time))
+    print("Run time: {:.2f} s".format(time.time() - start_time))

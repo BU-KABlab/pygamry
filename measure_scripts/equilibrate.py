@@ -5,7 +5,7 @@ import run_functions as rf
 from pygamry.dtaq import get_pstat
 
 # Define args
-parser = argparse.ArgumentParser(description='Run equilibration')
+parser = argparse.ArgumentParser(description="Run equilibration")
 # Add predefined arguments
 argc.add_args_from_dict(parser, argc.common_args)
 argc.add_args_from_dict(parser, argc.equil_args)
@@ -13,7 +13,7 @@ argc.add_args_from_dict(parser, argc.pstatic_equil_args)
 argc.add_args_from_dict(parser, argc.gstatic_equil_args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Parse args
     args = parser.parse_args()
 

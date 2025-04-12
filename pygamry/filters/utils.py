@@ -15,7 +15,7 @@ def masked_filter(a, mask, filter_func=None, **filter_kw):
         if filter_func is None:
             sigma = np.ones(np.ndim(a))
             sigma[-1] = 0
-            filter_kw = {'sigma': sigma}
+            filter_kw = {"sigma": sigma}
         else:
             filter_kw = None
     if filter_func is None:
@@ -29,14 +29,14 @@ def masked_filter(a, mask, filter_func=None, **filter_kw):
 
 def rms_filter(a, size, empty=False, **kw):
     # Get mean of squared deviations
-    a2 = a ** 2
+    a2 = a**2
     a2_mean = ndimage.uniform_filter(a2, size, **kw)
 
     if empty:
         # Determine kernel volume
         if np.isscalar(size):
             ndim = np.ndim(a)
-            n = size ** ndim
+            n = size**ndim
         else:
             n = np.prod(size)
         a2_mean -= a2 / n
@@ -45,7 +45,7 @@ def rms_filter(a, size, empty=False, **kw):
     # Small negatives may arise due to precision loss
     a2_mean[a2_mean < 0] = 0
 
-    return a2_mean ** 0.5
+    return a2_mean**0.5
 
 
 def std_filter(a, size, mask=None, **kw):
@@ -54,9 +54,11 @@ def std_filter(a, size, mask=None, **kw):
         var = ndimage.uniform_filter((a - a_mean) ** 2, size, **kw)
     else:
         a_mean = masked_filter(a, mask, ndimage.uniform_filter, size=size, **kw)
-        var = masked_filter((a - a_mean) ** 2, mask, ndimage.uniform_filter, size=size, **kw)
+        var = masked_filter(
+            (a - a_mean) ** 2, mask, ndimage.uniform_filter, size=size, **kw
+        )
 
-    return var ** 0.5
+    return var**0.5
 
 
 def iqr_filter(a, size, **kw):

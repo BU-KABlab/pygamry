@@ -1,7 +1,7 @@
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--text', type=str, default=None)
+parser.add_argument("--text", type=str, default=None)
 
 args = parser.parse_args()
 # print(args.text.find('\\t'))

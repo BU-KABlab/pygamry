@@ -1,8 +1,11 @@
 import argparse
+
 # import os
 import numpy as np
+
 # import matplotlib.pyplot as plt
 import time
+
 # from copy import deepcopy
 import arg_config as argc
 import run_functions as rf
@@ -11,7 +14,7 @@ import pandas as pd
 from pygamry.dtaq import get_pstat, DtaqOcv, DtaqChrono, HybridSequencer
 
 # Define args
-parser = argparse.ArgumentParser(description='Run fast polarization map')
+parser = argparse.ArgumentParser(description="Run fast polarization map")
 # Add predefined arguments
 argc.add_args_from_dict(parser, argc.common_args)
 argc.add_args_from_dict(parser, argc.ocp_args)
@@ -22,19 +25,19 @@ argc.add_args_from_dict(parser, argc.staircase_args)
 argc.add_args_from_dict(
     parser,
     {
-        '--vsweep_t_init': dict(type=float, default=1),
-        '--vsweep_t_sample': dict(type=float, default=5e-3),
-        '--vsweep_t_step': dict(type=float, default=5),
-        '--vsweep_ocv_equil': dict(default=False, action='store_true'),
-        '--vsweep_i_max': dict(type=float, default=1.0),
-        '--vsweep_file': dict(type=str, default='none'),
-        '--min_i_step': dict(type=float, default=-1)
-    }
+        "--vsweep_t_init": dict(type=float, default=1),
+        "--vsweep_t_sample": dict(type=float, default=5e-3),
+        "--vsweep_t_step": dict(type=float, default=5),
+        "--vsweep_ocv_equil": dict(default=False, action="store_true"),
+        "--vsweep_i_max": dict(type=float, default=1.0),
+        "--vsweep_file": dict(type=str, default="none"),
+        "--min_i_step": dict(type=float, default=-1),
+    },
 )
 
-parser.add_argument('--disable_vsweep', action='store_true')
+parser.add_argument("--disable_vsweep", action="store_true")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Parse args
     args = parser.parse_args()
 
@@ -52,22 +55,26 @@ if __name__ == '__main__':
 
     # Configure OCV
     # Write to file point-by-point
-    ocv = DtaqOcv(write_mode='interval', write_interval=1,
-                  exp_notes=args.exp_notes)
+    ocv = DtaqOcv(write_mode="interval", write_interval=1, exp_notes=args.exp_notes)
 
     # Configure chrono for voltage sweep
-    chrono = DtaqChrono(mode='pot', write_mode='once', write_precision=6, exp_notes=args.exp_notes)
+    chrono = DtaqChrono(
+        mode="pot", write_mode="once", write_precision=6, exp_notes=args.exp_notes
+    )
 
     # Configure hybrid sequencer
-    seq = HybridSequencer(chrono_mode='galv', eis_mode='galv',
-                          update_step_size=not args.staircase_constant_step_size,
-                          exp_notes=args.exp_notes)
+    seq = HybridSequencer(
+        chrono_mode="galv",
+        eis_mode="galv",
+        update_step_size=not args.staircase_constant_step_size,
+        exp_notes=args.exp_notes,
+    )
 
     for n in range(args.num_loops):
-        print(f'Beginning cycle {n}\n-----------------------------')
+        print(f"Beginning cycle {n}\n-----------------------------")
         # If repeating measurement, add indicator for cycle number
         if args.num_loops > 1:
-            suffix = args.file_suffix + f'_#{n}'
+            suffix = args.file_suffix + f"_#{n}"
         else:
             suffix = args.file_suffix
 
@@ -78,12 +85,12 @@ if __name__ == '__main__':
 
         # Get measured OCV
         V_oc = ocv.get_ocv(10)  # average last 10 values
-        print('OCV: {:.3f} V'.format(V_oc))
+        print("OCV: {:.3f} V".format(V_oc))
 
         # Run chronoamperometry
         # ------------------------
-        if args.vsweep_file != 'none':
-            iv_df = pd.read_csv(args.vsweep_file, sep='\t')
+        if args.vsweep_file != "none":
+            iv_df = pd.read_csv(args.vsweep_file, sep="\t")
         elif not args.disable_vsweep:
             iv_df = rf.run_v_sweep(chrono, pstat, args, suffix, V_oc=V_oc)
         else:
@@ -95,9 +102,9 @@ if __name__ == '__main__':
         #  with increasing voltage
         # Sort by voltage
         iv_df = iv_df.copy()
-        sort_index = np.argsort(iv_df['Vf'].values)
-        i_sort = iv_df['Im'].values[sort_index]
-        v_sort = iv_df['Vf'].values[sort_index]
+        sort_index = np.argsort(iv_df["Vf"].values)
+        i_sort = iv_df["Im"].values[sort_index]
+        v_sort = iv_df["Vf"].values[sort_index]
         # Enforce a minimum current step
         i_diff = np.diff(i_sort)
         if args.min_i_step == -1:
@@ -107,13 +114,13 @@ if __name__ == '__main__':
             min_i_step = np.percentile(i_diff, 25) - 1.5 * iqr
         else:
             min_i_step = args.min_i_step
-        print('min_i_step: {:.2e} A'.format(min_i_step))
+        print("min_i_step: {:.2e} A".format(min_i_step))
         i_diff[i_diff < min_i_step] = min_i_step
         cumsum = np.cumsum(i_diff)
         cumsum = np.insert(cumsum, 0, 0)
         i_sort = i_sort[0] + cumsum
-        iv_df['Im'] = i_sort
-        iv_df['Vf'] = v_sort
+        iv_df["Im"] = i_sort
+        iv_df["Vf"] = v_sort
 
         # Run hybrid staircase
         # -----------------------

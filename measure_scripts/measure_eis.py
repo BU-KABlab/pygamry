@@ -12,13 +12,13 @@ import run_functions as rf
 from pygamry.dtaq import get_pstat
 
 # Define args
-parser = argparse.ArgumentParser(description='Run EIS')
+parser = argparse.ArgumentParser(description="Run EIS")
 # Add predefined arguments
 argc.add_args_from_dict(parser, argc.common_args)
 argc.add_args_from_dict(parser, argc.ocp_args)
 argc.add_args_from_dict(parser, argc.eis_args)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Parse args
     args = parser.parse_args()
 
@@ -27,22 +27,26 @@ if __name__ == '__main__':
 
     # Configure EIS
     # Write at each frequency
-    eis = DtaqReadZ(mode=args.eis_mode, readzspeed='ReadZSpeedNorm', write_mode='interval', write_interval=1,
-                    exp_notes=args.exp_notes)
+    eis = DtaqReadZ(
+        mode=args.eis_mode,
+        readzspeed="ReadZSpeedNorm",
+        write_mode="interval",
+        write_interval=1,
+        exp_notes=args.exp_notes,
+    )
 
     for n in range(args.num_loops):
-        print(f'Beginning cycle {n}\n-----------------------------')
+        print(f"Beginning cycle {n}\n-----------------------------")
         # If repeating measurement, add indicator for cycle number
         if args.num_loops > 1:
-            suffix = args.file_suffix + f'_#{n}'
+            suffix = args.file_suffix + f"_#{n}"
         else:
             suffix = args.file_suffix
 
         # Get OCV
         # -------------------
-        V_oc = rf.test_ocv(pstat, num_points=9)        
+        V_oc = rf.test_ocv(pstat, num_points=9)
 
         # Run EIS
         # -------------------
         rf.run_eis(eis, pstat, args, suffix, V_oc)
-       

@@ -1,4 +1,5 @@
 import argparse
+
 # import time
 import arg_config as argc
 import run_functions as rf
@@ -6,12 +7,12 @@ import run_functions as rf
 from pygamry.dtaq import get_pstat, HybridSequencer
 
 # Define args
-parser = argparse.ArgumentParser(description='Run hybrid measurement')
+parser = argparse.ArgumentParser(description="Run hybrid measurement")
 # Add predefined arguments
 argc.add_args_from_dict(parser, argc.common_args)
 argc.add_args_from_dict(parser, argc.hybrid_args)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Parse args
     args = parser.parse_args()
 
@@ -19,23 +20,20 @@ if __name__ == '__main__':
     pstat = get_pstat()
 
     # Configure sequencer
-    seq = HybridSequencer(chrono_mode='galv', eis_mode=args.hybrid_eis_mode,
-                          update_step_size=True, exp_notes=args.exp_notes)
+    seq = HybridSequencer(
+        chrono_mode="galv",
+        eis_mode=args.hybrid_eis_mode,
+        update_step_size=True,
+        exp_notes=args.exp_notes,
+    )
 
     for n in range(args.num_loops):
-        print(f'Beginning cycle {n}\n-----------------------------')
+        print(f"Beginning cycle {n}\n-----------------------------")
         # If repeating measurement, add indicator for cycle number
         if args.num_loops > 1:
-            suffix = args.file_suffix + f'_#{n}'
+            suffix = args.file_suffix + f"_#{n}"
         else:
             suffix = args.file_suffix
 
         # rf.test_resistance(pstat)
         rf.run_hybrid(seq, pstat, args, suffix, show_plot=False)
-
-
-
-
-
-
-

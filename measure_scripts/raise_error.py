@@ -1,1 +1,1 @@
-raise Exception('This is an error!')
+raise Exception("This is an error!")

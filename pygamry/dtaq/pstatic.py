@@ -10,16 +10,18 @@ class DtaqPstatic(GamryDtaqEventSink):
     def __init__(self, **init_kw):
         # Define axes for real-time plotting
         axes_def = [
-            {'title': 'Voltage',
-             'type': 'y(t)',
-             'y_column': 'Vf',
-             'y_label': '$V$ (V)'
-             },
-            {'title': 'Current',
-             'type': 'y(t)',
-             'y_column': 'Im',
-             'y_label': '$i$ (A)'
-             }
+            {
+                "title": "Voltage",
+                "type": "y(t)",
+                "y_column": "Vf",
+                "y_label": "$V$ (V)",
+            },
+            {
+                "title": "Current",
+                "type": "y(t)",
+                "y_column": "Im",
+                "y_label": "$i$ (A)",
+            },
         ]
 
         # Subclass-specific attributes
@@ -27,8 +29,13 @@ class DtaqPstatic(GamryDtaqEventSink):
         self.i_min = None
         self.i_max = None
 
-        super().__init__('GamryDtaqCpiv', 'POTENTIOSTATIC', axes_def,
-                         test_id='Potentiostatic Scan', **init_kw)
+        super().__init__(
+            "GamryDtaqCpiv",
+            "POTENTIOSTATIC",
+            axes_def,
+            test_id="Potentiostatic Scan",
+            **init_kw,
+        )
 
     # ---------------------------------
     # Initialization and configuration
@@ -68,10 +75,10 @@ class DtaqPstatic(GamryDtaqEventSink):
         self.pstat.SetIchOffsetEnable(False)
 
         # Find current range
-        print('Finding IE range...')
+        print("Finding IE range...")
         self.pstat.FindIERange()
 
-        print('IE range:', self.pstat.IERange())
+        print("IE range:", self.pstat.IERange())
 
     def set_signal(self, v, duration, t_sample):
         """
@@ -81,29 +88,38 @@ class DtaqPstatic(GamryDtaqEventSink):
         :param float t_sample: sample period in seconds
         :return:
         """
-        self.signal = client.CreateObject('GamryCOM.GamrySignalConst')
-        self.signal.Init(self.pstat,
-                         v,  # voltage
-                         duration,
-                         t_sample,
-                         GamryCOM.PstatMode,  # CtrlMode
-                         )
+        self.signal = client.CreateObject("GamryCOM.GamrySignalConst")
+        self.signal.Init(
+            self.pstat,
+            v,  # voltage
+            duration,
+            t_sample,
+            GamryCOM.PstatMode,  # CtrlMode
+        )
 
         # Store signal parameters for reference
-        self.signal_params = {
-            'v': v,
-            'duration': duration,
-            't_sample': t_sample
-        }
+        self.signal_params = {"v": v, "duration": duration, "t_sample": t_sample}
 
         self.v_req = v
 
     # ---------------------------------
     # Run
     # ---------------------------------
-    def run(self, pstat, v, duration, t_sample, timeout=None, i_min=None, i_max=None,
-            result_file=None, kst_file=None, append_to_file=False,
-            show_plot=False, plot_interval=None):
+    def run(
+        self,
+        pstat,
+        v,
+        duration,
+        t_sample,
+        timeout=None,
+        i_min=None,
+        i_max=None,
+        result_file=None,
+        kst_file=None,
+        append_to_file=False,
+        show_plot=False,
+        plot_interval=None,
+    ):
         self.pstat = pstat
         self.set_signal(v, duration, t_sample)
 
@@ -118,13 +134,22 @@ class DtaqPstatic(GamryDtaqEventSink):
         if plot_interval is None:
             plot_interval = t_sample * 0.9
 
-        super().run_main(pstat, result_file, kst_file, append_to_file, timeout=timeout, show_plot=show_plot,
-                         plot_interval=plot_interval)
+        super().run_main(
+            pstat,
+            result_file,
+            kst_file,
+            append_to_file,
+            timeout=timeout,
+            show_plot=show_plot,
+            plot_interval=plot_interval,
+        )
 
     # --------------------
     # Header
     # --------------------
     def get_dtaq_header(self):
-        text = 'AREA\tQUANT\t1.0\tSample Area (cm^2)\n' + \
-               f'EOC\tQUANT\t{rel_round(self.v_oc, self.write_precision)}\tOpen Circuit (V)\n'
+        text = (
+            "AREA\tQUANT\t1.0\tSample Area (cm^2)\n"
+            + f"EOC\tQUANT\t{rel_round(self.v_oc, self.write_precision)}\tOpen Circuit (V)\n"
+        )
         return text

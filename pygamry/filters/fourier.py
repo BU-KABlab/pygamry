@@ -14,6 +14,6 @@ def fourier_band_filter(x, dt, f_min, f_max):
     start = nearest_index(f_fft, f_min)
     end = nearest_index(f_fft, f_max)
     x_fft[start:end] = 0
-    
+
     # Invert FFT
     return fft.irfft(x_fft)
