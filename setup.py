@@ -10,7 +10,8 @@ setup(
     author="Jake Huang",
     author_email="jdhuang@mines.edu",
     license="BSD 3-clause",
-    packages=["pygamry"],
+    packages=["pygamry", "pygamry.dtaq", "pygamry.filters"],
+    package_dir={"pygamry": "pygamry"},
     install_requires=["numpy", "scipy", "pandas", "matplotlib", "comtypes"],
     include_package_data=True,
 )
